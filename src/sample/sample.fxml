@@ -1,0 +1,15 @@
+
+
+<?import javafx.scene.layout.Pane?>
+
+<?import java.lang.Double?>
+<Pane fx:id="stackPane" fx:controller="sample.Controller"
+      xmlns:fx="http://javafx.com/fxml"
+      style="-fx-background-color: black" onMouseClicked="#onMouseClicked">
+    <fx:define>
+        <Double  fx:id="WIDTH" fx:value="1280"/>
+        <Double  fx:id="HEIGHT" fx:value="720"/>
+        <Double  fx:id="GOAL_GATE_WIDTH" fx:value="64"/>
+        <Double  fx:id="GOAL_GATE_HEIGHT" fx:value="180"/>
+    </fx:define>
+</Pane>
