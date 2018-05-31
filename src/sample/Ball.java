@@ -15,29 +15,49 @@ import java.util.Random;
 
 public class Ball extends Circle{
 
-
+    int color;
     public Ball() {
-        Random rand= new Random();
+      /*  Random rand= new Random();
         double x = rand.nextInt(800)+1;
         double y = rand.nextInt(800)+1;
         this.setLayoutX(x);
         this.setLayoutY(y);
         this.setRadius(10);
-        this.setFill(Color.WHITE);
+        this.setFill(Color.WHITE);*/
     }
 
-    public Ball(double x, double y, double r, Color color) {
+    public Ball(double x, double y, double r, int color2) {
         this.setLayoutX(x);
         this.setLayoutY(y);
         this.setRadius(r);
-        this.setFill(color);
-        this.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        this.color = color2;
+        switch (color2)
+        {
+            case 0:
+                this.setFill(Color.BLUE);
+                break;
+            case 1:
+                this.setFill(Color.WHITE);
+                break;
+            case 2:
+                this.setFill(Color.RED);
+                break;
+            case 3:
+                this.setFill(Color.GREEN);
+                break;
+            default:
+                this.setFill(Color.PURPLE);
+                break;
+        }
+
+        /*this.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {
                 //System.out.println(getLayoutX() + "  " + getLayoutY());
+
                 setLayoutX(me.getX());
                 setLayoutY(me.getX());
             }
-        });
+        });*/
     }
 
 
@@ -53,8 +73,8 @@ public class Ball extends Circle{
     public void moveBall(double x, double y)
     {
 
-        this.setLayoutX(this.getLayoutX() + x);
-        this.setLayoutY(this.getLayoutY() + y);
+     /*   this.setLayoutX(this.getLayoutX() + x);
+        this.setLayoutY(this.getLayoutY() + y);*/
 
     }
 }
