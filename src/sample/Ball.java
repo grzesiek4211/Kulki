@@ -69,12 +69,12 @@ public class Ball extends Circle{
         Lighting lighting = new Lighting() ;
         this.setEffect(lighting);
     }
-
-    public void moveBall(double x, double y)
-    {
-
-     /*   this.setLayoutX(this.getLayoutX() + x);
-        this.setLayoutY(this.getLayoutY() + y);*/
-
-    }
+//
+//    public void moveBall(double x, double y)
+//    {
+//
+//     /*   this.setLayoutX(this.getLayoutX() + x);
+//        this.setLayoutY(this.getLayoutY() + y);*/
+//
+//    }
 }

@@ -19,20 +19,76 @@ public class Controller {
     private List<Ball> ballsList;
     @FXML
     public Pane stackPane;
+    int pickedX, pickedY;
+
+    long clickCounter = 0;
 
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
-       if(!checkForGroups());
-          createBalls();
-       //closestShot(mouseEvent.getX(),mouseEvent.getY());
-        //checkForGroups();
-       /* if(!checkForGroups())
-        */   // createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
-       // checkForGroups();
-       // checkForGroups();
+        click((int) mouseEvent.getX(), (int) mouseEvent.getY());
+        System.out.println((int) mouseEvent.getX() + " " + (int) mouseEvent.getY());
+
+        if(clickCounter == 1)
+            moveBall((int)mouseEvent.getX(), (int)mouseEvent.getY());
+
     }
 
+    private void click(int x, int y)
+    {
+        if(clickCounter == 0)
+        {
+            if (!isEmptySpace(x, y, 15)) {
+                pickedX = x;
+                pickedY = y;
+                clickCounter = 1;
+            }
+            else
+            {
+                clickCounter = 0;
+                pickedX = -1;
+                pickedY = -1;
+            }
+        }
+        else
+        {
+            x = closestShot(x, y).x;
+            y = closestShot(x, y).y;
+
+            for(Ball b: ballsList)
+            {
+                if(b.getLayoutX() == x && b.getLayoutY() == y)
+                {
+                    pickedX = x;
+                    pickedY = y;
+                }
+            }
+        }
+    }
+
+    private boolean moveBall(int x, int y)
+    {
+
+
+        x = closestShot(x, y).x;
+        y = closestShot(x, y).y;
+        System.out.println("x: "+x+" y: "+y+" picX: "+pickedX+" picY: "+pickedY);
+        if(isEmptySpace(x,y, 15) && pickedX != -1 && pickedY != -1)
+        {
+            NetNode point = closestShot(pickedX, pickedY);
+            for(Ball b: ballsList)
+            {
+                if(b.getLayoutX() == point.x && b.getLayoutY() == point.y)
+                {
+                    b.setLayoutX(x);
+                    b.setLayoutY(y);
+                    clickCounter = 0;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     private void createArea()
     {
         rowHeight = windowHeight/11;
