@@ -40,12 +40,45 @@ public class Controller {
             moveBall((int)mouseEvent.getX(), (int)mouseEvent.getY());
         */
 
+      //  createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
+
         createBalls();
 
-        if(isFieldFull())
+//        if(isFieldFull())
+//        {
+//            square();
+            countPointsHorizontal();
+
+            removeBalls(poziomo);
+            System.out.println("pozioom size ="+poziomo.size());
+
+//        }
+    }
+
+
+    private void removeBalls(ArrayList<ArrayList<Ball>> ballsToRemove)
+    {
+
+        for(ArrayList<Ball> L : ballsToRemove)
         {
-            countPoints();
+
+            for (Ball b : L)
+            {
+                for(NetNode node : siatka)
+                {
+                    if(b.getLayoutX()==node.x && b.getLayoutY()==node.y)
+                    {
+                        int index = siatka.indexOf(node);
+                        node.isTaken=false;
+                        siatka.set(index,node);
+                        stackPane.getChildren().remove(b);
+                        ballsList.remove(b);
+                    }
+                }
+            }
         }
+
+        ballsToRemove.clear();
     }
 
     public void square() {
@@ -106,106 +139,76 @@ public class Controller {
         }*/
     }
 
-    public void countPoints()
-    {
+    public void countPointsHorizontal() {
 
         //poziomo
         int[] colors = new int[5];
-        int currentColor=-1;
-        int inRow=0;
+        int currentColor = -1;
+        int inRow = 0;
 
-        //poziomo.clear();
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
-        for(int i = 0; i < siatka.size();i+=9)
-        {
+        poziomo.clear();
+        for (int i = 0; i < siatka.size(); i += 9) {
             ArrayList<Ball> balls = new ArrayList<>();
 
-            for(int j = i; j < i + 9; j++)
-            {
-                if(!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+            for (int j = i; j < i + 9; j++) {
+
+                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
-                    if(inRow >= 4)
-                    {
-                        poziomo.add(copyArrayList(balls));
+                    if (inRow >= 3) {
+                        ArrayList<Ball> arrayList = copyArrayList(balls);
+                        System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
+                        poziomo.add(arrayList);
                     }
                     balls.clear();
-                    inRow=0;
+                    inRow = 0;
                     continue;
                 }
 
-                for(Ball ball: ballsList)
-                {
+                for (Ball ball : ballsList) {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY())) {
 
-                        if(currentColor!= ball.color)
-                        {
-                            if(inRow>=4)
-                            {
+                        if (currentColor != ball.color) {
+                            if (inRow >= 3) {
                                 poziomo.add(copyArrayList(balls));
                             }
                             balls.clear();
-                            currentColor=ball.color;
-                            inRow=1;
-                            //break;
-                        }
-                        else
-                        {
+                            balls.add(ball);
+                            currentColor = ball.color;
+                            inRow = 1;
+                        } else {
                             balls.add(ball);
                             inRow++;
-                            //if(balls.size() > 2)
-                                //System.out.println("dupka");
-                            //break;
+                            if (j % 9 == 8) {
+                                if (inRow >= 3) {
+                                    poziomo.add(copyArrayList(balls));
+                                    balls.clear();
+                                }
+                            }
+
                         }
                     }
                 }
-
-//                    for (int x=0;x<ballsList.size();x++) {
-//                        if (siatka.get(i).x == ball.getLayoutX() && (siatka.get(i).x == ball.getLayoutY())) {
-//
-//
-//                                colors[ball.color]++; //inkrementujemy ilosc kolorów
-//                        }
-//                    }
             }
 
-//                for(int j = 0; j<colors.length;j++)
-//                {
-//                    if( colors[j]>=5)
-//                    {
-//                        for(int x =i;x<i+9;x++)
-//                        {
-//                            for (Ball ball : ballsList) {
-//                                if (siatka.get(i).x == ball.getLayoutX() && (siatka.get(i).x == ball.getLayoutY())) {
-//
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-
-
-            //System.out.println("Rzad "+i/9+" inRow "+inRow);
-            for(List<Ball> L : poziomo)
-            {
-
-                //System.out.println("L size: " + L.size());
-                //System.out.print("Color: ");
-                for (Ball b : L)
-                {
-                    System.out.print(b.color+" ");
-                }
-                if(!L.isEmpty()) {
-                    System.out.println("");
-                }
-            }
-
+            inRow = 0;
+            currentColor = -1;
         }
 
+        for(List<Ball> L : poziomo)
+        {
 
-
-
-        //poziomo koniec
+            //System.out.println("L size: " + L.size());
+            //System.out.print("Color: ");
+            for (Ball b : L)
+            {
+                System.out.print(b.color+" ");
+            }
+            if(!L.isEmpty()) {
+                System.out.println("");
+            }
+        }
     }
 
 
@@ -399,7 +402,7 @@ public class Controller {
     private void createBalls()
     {
         int j = 0;
-        while (j < 35 && !isFieldFull()) {
+        while (j < 5 && !isFieldFull()) {
                 int radius = 15;
                 NetNode point = losujPoints(radius);
                 if (point != null) {
@@ -424,7 +427,7 @@ public class Controller {
                 if (point != null) {
                     if (isEmptySpace(point.x, point.y, radius)) {
 
-                        Ball b = new Ball(point.x, point.y, radius, drawColor());
+                        Ball b = new Ball(point.x, point.y, radius, 0);//drawColor());
                         b.getLight();
                         stackPane.getChildren().add(b);
                         ballsList.add(b);
@@ -732,7 +735,7 @@ public class Controller {
 
     }
 
-    private ArrayList copyArrayList(final ArrayList list) {
+    private ArrayList copyArrayList( ArrayList list) {
 
         ArrayList listCopy = new ArrayList(list);
         return listCopy;
