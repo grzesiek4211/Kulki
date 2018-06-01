@@ -28,40 +28,49 @@ public class Controller {
     int pickedX, pickedY;
 
     long clickCounter = 0;
+    int points = 0;
 
     boolean foundPath=false;
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
-        /*click((int) mouseEvent.getX(), (int) mouseEvent.getY());
-        //System.out.println((int) mouseEvent.getX() + " " + (int) mouseEvent.getY());
+        click((int) mouseEvent.getX(), (int) mouseEvent.getY());
 
         if(clickCounter == 1)
             moveBall((int)mouseEvent.getX(), (int)mouseEvent.getY());
-        */
 
-        createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
+        //createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
 
-        createBalls();
-
-        if(isFieldFull())
-        {
-            //square();
-            countPointsDiagonalLeft();
-
-            //removeBalls(poziomo);
-            //System.out.println("pozioom size ="+poziomo.size());
-
-        }
+        /*createBalls();
+        countPointsVertictal();
+        countPointsHorizontal();
+        countSquare();
+        countPointsDiagonalLeft();
+        countPointsDiagonalRight();
+        removeBalls(poziomo);
+        removeBalls(dol);
+        removeBalls(skoslewy);
+        removeBalls(skosprawy);
+        removeBalls(kwadrat);
+        System.out.println(points);*/
     }
 
 
-    private void removeBallsHorizontal(ArrayList<ArrayList<Ball>> ballsToRemove)
+    private void removeBalls(ArrayList<ArrayList<Ball>> ballsToRemove)
     {
 
         for(ArrayList<Ball> L : ballsToRemove)
         {
-
+            switch(L.size())
+            {
+                case 6:
+                    points += 12;
+                    break;
+                case 7:
+                    points += 21;
+                    break;
+                default: points += L.size();
+            }
             for (Ball b : L)
             {
                 for(NetNode node : siatka)
@@ -81,7 +90,7 @@ public class Controller {
         ballsToRemove.clear();
     }
 
-    public void square() {
+    public void countSquare() {
 
         kwadrat.clear();
         int[] currentColor = new int[4];
@@ -642,7 +651,7 @@ public class Controller {
     private void createBalls()
     {
         int j = 0;
-        while (j < 5 && !isFieldFull()) {
+        while (j < 3 && !isFieldFull()) {
                 int radius = 15;
                 NetNode point = losujPoints(radius);
                 if (point != null) {
