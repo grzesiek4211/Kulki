@@ -40,23 +40,23 @@ public class Controller {
             moveBall((int)mouseEvent.getX(), (int)mouseEvent.getY());
         */
 
-      //  createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
+        createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
 
         createBalls();
 
-//        if(isFieldFull())
-//        {
-//            square();
-            countPointsHorizontal();
+        if(isFieldFull())
+        {
+            //square();
+            countPointsVertictal();
 
-            removeBalls(poziomo);
-            System.out.println("pozioom size ="+poziomo.size());
+            //removeBalls(poziomo);
+            //System.out.println("pozioom size ="+poziomo.size());
 
-//        }
+        }
     }
 
 
-    private void removeBalls(ArrayList<ArrayList<Ball>> ballsToRemove)
+    private void removeBallsHorizontal(ArrayList<ArrayList<Ball>> ballsToRemove)
     {
 
         for(ArrayList<Ball> L : ballsToRemove)
@@ -145,6 +145,7 @@ public class Controller {
         int[] colors = new int[5];
         int currentColor = -1;
         int inRow = 0;
+        int howInRow = 3;
 
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
@@ -156,13 +157,14 @@ public class Controller {
 
                 if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
-                    if (inRow >= 3) {
+                    if (inRow >= howInRow) {
                         ArrayList<Ball> arrayList = copyArrayList(balls);
                         System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
                         poziomo.add(arrayList);
                     }
                     balls.clear();
                     inRow = 0;
+                    currentColor=-1;
                     continue;
                 }
 
@@ -170,7 +172,7 @@ public class Controller {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY())) {
 
                         if (currentColor != ball.color) {
-                            if (inRow >= 3) {
+                            if (inRow >= howInRow) {
                                 poziomo.add(copyArrayList(balls));
                             }
                             balls.clear();
@@ -181,7 +183,7 @@ public class Controller {
                             balls.add(ball);
                             inRow++;
                             if (j % 9 == 8) {
-                                if (inRow >= 3) {
+                                if (inRow >= howInRow) {
                                     poziomo.add(copyArrayList(balls));
                                     balls.clear();
                                 }
@@ -211,8 +213,80 @@ public class Controller {
         }
     }
 
+    public void countPointsVertictal() {
 
+        int howInRow = 3;
+        //poziomo
+        int[] colors = new int[5];
+        int currentColor = -1;
+        int inRow = 0;
 
+        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
+
+        dol.clear();
+        for (int i = 0; i < 9; i++) {
+            ArrayList<Ball> balls = new ArrayList<>();
+
+            for (int j = i; j <= i + 72; j += 9) {
+
+                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                {
+                    if (inRow >= howInRow) {
+                        ArrayList<Ball> arrayList = copyArrayList(balls);
+                        System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
+                        dol.add(arrayList);
+                    }
+                    balls.clear();
+                    inRow = 0;
+                    currentColor=-1;
+                    continue;
+                }
+
+                for (Ball ball : ballsList) {
+                    if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY())) {
+
+                        if (currentColor != ball.color) {
+                            if (inRow >= howInRow) {
+                                dol.add(copyArrayList(balls));
+                            }
+                            balls.clear();
+                            balls.add(ball);
+                            currentColor = ball.color;
+                            inRow = 1;
+                        } else {
+                            balls.add(ball);
+                            inRow++;
+                            //if (j % 9 == 8) {
+                            if (j > 71) {
+                                if (inRow >= howInRow) {
+                                    dol.add(copyArrayList(balls));
+                                    balls.clear();
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            inRow = 0;
+            currentColor = -1;
+        }
+
+        for(List<Ball> L : dol)
+        {
+
+            //System.out.println("L size: " + L.size());
+            //System.out.print("Color: ");
+            for (Ball b : L)
+            {
+                System.out.print(b.color+" ");
+            }
+            if(!L.isEmpty()) {
+                System.out.println("");
+            }
+        }
+    }
 
     private boolean isReachablePath(int startX, int startY, int endX, int endY)
     {
