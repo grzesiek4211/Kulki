@@ -47,7 +47,7 @@ public class Controller {
         if(isFieldFull())
         {
             //square();
-            countPointsVertictal();
+            countPointsDiagonalLeft();
 
             //removeBalls(poziomo);
             //System.out.println("pozioom size ="+poziomo.size());
@@ -145,7 +145,7 @@ public class Controller {
         int[] colors = new int[5];
         int currentColor = -1;
         int inRow = 0;
-        int howInRow = 3;
+        int howInRow = 5;
 
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
@@ -278,6 +278,172 @@ public class Controller {
 
             //System.out.println("L size: " + L.size());
             //System.out.print("Color: ");
+            for (Ball b : L)
+            {
+                System.out.print(b.color+" ");
+            }
+            if(!L.isEmpty()) {
+                System.out.println("");
+            }
+        }
+    }
+
+    public void countPointsDiagonalRight() {
+
+        skosprawy.clear();
+        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
+        int howInRow = 3;
+        int inRow = 0;
+        int currentColor = -1;
+        boolean flag = true;
+        int i = 36;
+        while(flag)
+        {
+            ArrayList<Ball> balls = new ArrayList<>();
+            for (int j = i; j < 81; j+=10) {
+
+
+                //System.out.println("i: "+i+" j: "+j);
+                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                {
+                    //System.out.println("wolna przestrzen");
+                    if (inRow >= howInRow) {
+                        skosprawy.add(copyArrayList(balls));
+                        System.out.println("dupa1");
+                    }
+                    balls.clear();
+                    inRow = 0;
+                    currentColor=-1;
+                    continue;
+                }
+
+                for (Ball ball : ballsList) {
+                    if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY()) ) {
+
+                        if (currentColor != ball.color) {
+                            if (inRow >= howInRow) {
+                                skosprawy.add(copyArrayList(balls));
+                            }
+                            balls.clear();
+                            //System.out.println(inRow);
+                            balls.add(ball);
+                            currentColor = ball.color;
+                            inRow = 1;
+                        } else {
+                            balls.add(ball);
+                            //System.out.println(inRow);
+                            inRow++;
+                            if (j % 9 == 8 || j > 71) {
+                                //System.out.println(inRow);
+                                if (inRow >= howInRow)
+                                {
+                                    skosprawy.add(copyArrayList(balls));
+                                }
+                                    balls.clear();
+                                    inRow = 0;
+                                    currentColor = -1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            inRow = 0;
+            currentColor = -1;
+
+            if(i >= 9)
+                i -= 9;
+            else
+                i++;
+            if(i == 5) flag = false;
+
+        }
+        for(List<Ball> L : skosprawy)
+        {
+            for (Ball b : L)
+            {
+                System.out.print(b.color+" ");
+            }
+            if(!L.isEmpty()) {
+                System.out.println("");
+            }
+        }
+    }
+
+    public void countPointsDiagonalLeft() {
+
+        skoslewy.clear();
+        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
+        int howInRow = 3;
+        int inRow = 0;
+        int currentColor = -1;
+        boolean flag = true;
+        int i = 44;
+        while(flag)
+        {
+            ArrayList<Ball> balls = new ArrayList<>();
+            for (int j = i; j < 81; j+=8) {
+                if( j-8 > 0 && siatka.get(j).x > siatka.get(j-8).x && j < i/8*8) {
+                    if (inRow >= howInRow) {
+                        skoslewy.add(copyArrayList(balls));
+                    }
+                    balls.clear();
+                    inRow = 0;
+                    currentColor = -1;
+                    break;
+                }
+
+                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                {
+                    if (inRow >= howInRow) {
+                        skoslewy.add(copyArrayList(balls));
+                    }
+                    balls.clear();
+                    inRow = 0;
+                    currentColor=-1;
+                    continue;
+                }
+
+                for (Ball ball : ballsList) {
+                    if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY()) ) {
+
+                        if (currentColor != ball.color) {
+                            if (inRow >= howInRow) {
+                                skoslewy.add(copyArrayList(balls));
+                            }
+                            balls.clear();
+                            balls.add(ball);
+                            currentColor = ball.color;
+                            inRow = 1;
+                        } else {
+                            balls.add(ball);
+                            inRow++;
+                            if (j % 9 == 0 || j > 71) {
+                                if (inRow >= howInRow)
+                                {
+                                    skoslewy.add(copyArrayList(balls));
+                                }
+                                balls.clear();
+                                inRow = 0;
+                                currentColor = -1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            inRow = 0;
+            currentColor = -1;
+
+            if(i > 9)
+                i -= 9;
+            else
+                i--;
+            if(i == 3) flag = false;
+
+        }
+        for(List<Ball> L : skoslewy)
+        {
             for (Ball b : L)
             {
                 System.out.print(b.color+" ");
