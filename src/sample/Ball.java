@@ -45,8 +45,20 @@ public class Ball extends Circle{
             case 3:
                 this.setFill(Color.GREEN);
                 break;
-            default:
+            case 4:
                 this.setFill(Color.PURPLE);
+                break;
+            case 5:
+                this.setFill(Color.GRAY);
+                break;
+            case 6:
+                this.setFill(Color.YELLOW);
+                break;
+            case 7:
+                this.setFill(Color.GOLDENROD);
+                break;
+            case 8:
+                this.setFill(Color.BROWN);
                 break;
         }
 

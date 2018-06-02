@@ -1,8 +1,15 @@
 package sample;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -27,47 +34,67 @@ public class Controller {
     public Pane stackPane;
     int pickedX, pickedY;
 
-    long clickCounter = 0;
+    int clickCounter = 0;
     int points = 0;
 
     boolean foundPath=false;
+    boolean cantBeReached = false;
+    int checkedNodesCounter =0;
+    int color;
+    String nick;
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
-        click((int) mouseEvent.getX(), (int) mouseEvent.getY());
 
-        if(clickCounter == 1)
-            moveBall((int)mouseEvent.getX(), (int)mouseEvent.getY());
+        clickAndMoveBall( (int) mouseEvent.getX(), (int) mouseEvent.getY());
 
-        //createBallOnClick((int)mouseEvent.getX(),(int)mouseEvent.getY());
+        //createBalls();
+        if(clickCounter == 0) {
+            countPointsVertictal();
+            countPointsHorizontal();
+            //countSquare();
+            countPointsDiagonalLeft();
+            countPointsDiagonalRight();
 
-        /*createBalls();
-        countPointsVertictal();
-        countPointsHorizontal();
-        countSquare();
-        countPointsDiagonalLeft();
-        countPointsDiagonalRight();
-        removeBalls(poziomo);
-        removeBalls(dol);
-        removeBalls(skoslewy);
-        removeBalls(skosprawy);
-        removeBalls(kwadrat);
-        System.out.println(points);*/
+
+            if ( !deletingBalls() ) {
+                createBalls(3);
+            }
+            countPointsVertictal();
+            countPointsHorizontal();
+            //countSquare();
+            countPointsDiagonalLeft();
+            countPointsDiagonalRight();
+            deletingBalls();
+
+            //System.out.println(points);
+        }
     }
 
-
-    private void removeBalls(ArrayList<ArrayList<Ball>> ballsToRemove)
+    private boolean deletingBalls()
     {
+        boolean flag = false;
+        if( removeBalls(poziomo) ) flag = true;
+        if( removeBalls(dol) ) flag = true;
+        if( removeBalls(skoslewy) ) flag = true;
+        if( removeBalls(skosprawy) ) flag = true;
+        if( removeBalls(kwadrat) ) flag = true;
 
+        return flag;
+    }
+
+    private boolean removeBalls(ArrayList<ArrayList<Ball>> ballsToRemove)
+    {
+        boolean flag = false;
         for(ArrayList<Ball> L : ballsToRemove)
         {
             switch(L.size())
             {
                 case 6:
-                    points += 12;
+                    points += 18;
                     break;
                 case 7:
-                    points += 21;
+                    points += 28;
                     break;
                 default: points += L.size();
             }
@@ -81,13 +108,15 @@ public class Controller {
                         node.isTaken=false;
                         siatka.set(index,node);
                         stackPane.getChildren().remove(b);
-                        ballsList.remove(b);
+                        if (ballsList.remove(b)) flag = true;
                     }
                 }
             }
         }
 
         ballsToRemove.clear();
+
+        return flag;
     }
 
     public void countSquare() {
@@ -101,7 +130,13 @@ public class Controller {
 
             for (int j = i; j < i + 8; j++) {
                 if (!siatka.get(j).isTaken)
+                {
+                    index = 0;
+                    currentColor = new int[4];
+                    balls.clear();
                     continue;
+                }
+
 
                 int j2 = j + 1;
                 int j3 = j + 9;
@@ -154,7 +189,7 @@ public class Controller {
         int[] colors = new int[5];
         int currentColor = -1;
         int inRow = 0;
-        int howInRow = 5;
+        int howManyInRow = 5;
 
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
@@ -166,7 +201,7 @@ public class Controller {
 
                 if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
-                    if (inRow >= howInRow) {
+                    if (inRow >= howManyInRow) {
                         ArrayList<Ball> arrayList = copyArrayList(balls);
                         System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
                         poziomo.add(arrayList);
@@ -181,7 +216,7 @@ public class Controller {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY())) {
 
                         if (currentColor != ball.color) {
-                            if (inRow >= howInRow) {
+                            if (inRow >= howManyInRow) {
                                 poziomo.add(copyArrayList(balls));
                             }
                             balls.clear();
@@ -192,7 +227,7 @@ public class Controller {
                             balls.add(ball);
                             inRow++;
                             if (j % 9 == 8) {
-                                if (inRow >= howInRow) {
+                                if (inRow >= howManyInRow) {
                                     poziomo.add(copyArrayList(balls));
                                     balls.clear();
                                 }
@@ -224,7 +259,7 @@ public class Controller {
 
     public void countPointsVertictal() {
 
-        int howInRow = 3;
+        int howManyInRow = 5;
         //poziomo
         int[] colors = new int[5];
         int currentColor = -1;
@@ -240,7 +275,7 @@ public class Controller {
 
                 if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
-                    if (inRow >= howInRow) {
+                    if (inRow >= howManyInRow) {
                         ArrayList<Ball> arrayList = copyArrayList(balls);
                         System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
                         dol.add(arrayList);
@@ -255,7 +290,7 @@ public class Controller {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY())) {
 
                         if (currentColor != ball.color) {
-                            if (inRow >= howInRow) {
+                            if (inRow >= howManyInRow) {
                                 dol.add(copyArrayList(balls));
                             }
                             balls.clear();
@@ -267,7 +302,7 @@ public class Controller {
                             inRow++;
                             //if (j % 9 == 8) {
                             if (j > 71) {
-                                if (inRow >= howInRow) {
+                                if (inRow >= howManyInRow) {
                                     dol.add(copyArrayList(balls));
                                     balls.clear();
                                 }
@@ -301,7 +336,7 @@ public class Controller {
 
         skosprawy.clear();
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
-        int howInRow = 3;
+        int howManyInRow = 5;
         int inRow = 0;
         int currentColor = -1;
         boolean flag = true;
@@ -316,7 +351,7 @@ public class Controller {
                 if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
                     //System.out.println("wolna przestrzen");
-                    if (inRow >= howInRow) {
+                    if (inRow >= howManyInRow) {
                         skosprawy.add(copyArrayList(balls));
                         System.out.println("dupa1");
                     }
@@ -330,7 +365,7 @@ public class Controller {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY()) ) {
 
                         if (currentColor != ball.color) {
-                            if (inRow >= howInRow) {
+                            if (inRow >= howManyInRow) {
                                 skosprawy.add(copyArrayList(balls));
                             }
                             balls.clear();
@@ -344,7 +379,7 @@ public class Controller {
                             inRow++;
                             if (j % 9 == 8 || j > 71) {
                                 //System.out.println(inRow);
-                                if (inRow >= howInRow)
+                                if (inRow >= howManyInRow)
                                 {
                                     skosprawy.add(copyArrayList(balls));
                                 }
@@ -383,7 +418,7 @@ public class Controller {
 
         skoslewy.clear();
         System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
-        int howInRow = 3;
+        int howManyInRow = 5;
         int inRow = 0;
         int currentColor = -1;
         boolean flag = true;
@@ -393,7 +428,7 @@ public class Controller {
             ArrayList<Ball> balls = new ArrayList<>();
             for (int j = i; j < 81; j+=8) {
                 if( j-8 > 0 && siatka.get(j).x > siatka.get(j-8).x && j < i/8*8) {
-                    if (inRow >= howInRow) {
+                    if (inRow >= howManyInRow) {
                         skoslewy.add(copyArrayList(balls));
                     }
                     balls.clear();
@@ -404,7 +439,7 @@ public class Controller {
 
                 if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
                 {
-                    if (inRow >= howInRow) {
+                    if (inRow >= howManyInRow) {
                         skoslewy.add(copyArrayList(balls));
                     }
                     balls.clear();
@@ -417,7 +452,7 @@ public class Controller {
                     if (siatka.get(j).x == ball.getLayoutX() && (siatka.get(j).y == ball.getLayoutY()) ) {
 
                         if (currentColor != ball.color) {
-                            if (inRow >= howInRow) {
+                            if (inRow >= howManyInRow) {
                                 skoslewy.add(copyArrayList(balls));
                             }
                             balls.clear();
@@ -428,7 +463,7 @@ public class Controller {
                             balls.add(ball);
                             inRow++;
                             if (j % 9 == 0 || j > 71) {
-                                if (inRow >= howInRow)
+                                if (inRow >= howManyInRow)
                                 {
                                     skoslewy.add(copyArrayList(balls));
                                 }
@@ -465,9 +500,50 @@ public class Controller {
 
     private boolean isReachablePath(int startX, int startY, int endX, int endY)
     {
-        int[] array = {-1, 1, -9, 9};
+        int[] array=new int[4];
+        checkedNodesCounter=0;
+        int wektorX=endX-startX;
+        int wektorY=endY-startY;
+
+        if(wektorX>0)
+        {
+            if(wektorY>0)
+            {
+                //array = {1, 9, -1, -9};
+                array[0]=1;
+                array[1] = 9;
+                array[2] = -1;
+                array[3] = -9;
+            }
+            else{
+                array[0]=1;
+                array[1] = -9;
+                array[2] = -1;
+                array[3] = 9;
+            }
+
+        }
+        else
+        {
+            if(wektorY>0)
+            {
+                array[0] = -1;
+                array[1] = 9;
+                array[2] = 1;
+                array[3] = -9;
+            }
+            else
+            {
+                array[0] = -1;
+                array[1] = -9;
+                array[2] = 1;
+                array[3] = 9;
+            }
+        }
+
 
         int index=0;
+        boolean flag = false;
         List checked = new ArrayList();
         NetNode point,point2;
         for(NetNode point3 : siatka)
@@ -475,29 +551,32 @@ public class Controller {
                 index = siatka.indexOf(point3);
         checked.add(index);
         for(int i : array) {
-        //System.out.println(i);
-            if (index + i > 0 && index + i < 81) {
+            if (index + i >= 0 && index + i < 81) {
                 point = siatka.get(index);
                 point2 = siatka.get(index + i);
                 if ((i==-1 || i==1) && point2.y != point.y)
                     continue;
-                recursivePathSearching(index + i, i, checked, endX, endY);
+                if(recursivePathSearching(index + i, i, checked, endX, endY))
+                    flag = true;
             }
         }
-        System.out.println(checked.size());
+        //System.out.println(checked.size());
 
         checked.clear();
-        return false;
+        return flag;
     }
 
     private boolean recursivePathSearching(int index,int direction, List checked, int endX, int endY)  // direction okresla w jakim kierunku znajduje sie poprzednia pozycja.
     {
-
+        if(checkedNodesCounter>45)
+            return false;
+        if(cantBeReached)
+            return false;
         NetNode point = siatka.get(index);
-        if(point==null)
-            System.out.println("dupazbita");
-        if(point.x == endX && point.y == endY)
+        if(foundPath || (point.x == endX && point.y == endY)) {
             foundPath = true;
+            return true;
+        }
 
         if(point.isTaken)
             return false;
@@ -509,30 +588,77 @@ public class Controller {
             if(pt.x==point.x && pt.y == point.y)
                 return false;
         }
-        int[] array = {-1, 1, -9, 9};
+        int[] array=new int[4];
+        int wektorX=endX-point.x;
+        int wektorY=endY-point.y;
+
+        if(wektorX>0)
+        {
+            if(wektorY>0)
+            {
+                array[0]=1;
+                array[1] = 9;
+                array[2] = -1;
+                array[3] = -9;
+
+            }
+            else{
+                array[0]=1;
+                array[1] = -9;
+                array[2] = -1;
+                array[3] = 9;
+            }
+
+        }
+        else
+        {
+            if(wektorY>0)
+            {
+                array[0] = -1;
+                array[1] = 9;
+                array[2] = 1;
+                array[3] = -9;
+            }
+            else
+            {
+                array[0] = -1;
+                array[1] = -9;
+                array[2] = 1;
+                array[3] = 9;
+            }
+        }
 
         checked.add(index);
         List checked2 = new ArrayList(checked);
-
+        checkedNodesCounter++;
         NetNode point2;
         for( int i : array)
         {
             if(i==-direction)
                 continue;
-            if(index+i>0&&index+i<81) {
+            if(index+i>=0&&index+i<81) {
                 point2 = siatka.get(index + i);
                 if ((i==-1 || i==1) && (point2.y != point.y))
                     continue;
-                recursivePathSearching(index + i, i, checked2, endX, endY);
-
+                if(recursivePathSearching(index + i, i, checked2, endX, endY))
+                    return true;
             }
+        }
+        return false;
+    }
+
+    private boolean clickAndMoveBall(int x, int y)
+    {
+        click(x, y);
+        if (clickCounter == 1) {
+            return moveBall(x, y);
         }
         return false;
     }
 
     private void click(int x, int y)
     {
-        if(clickCounter == 0)
+        if(clickCounter == 0 || clickCounter == 2)
         {
             if (!isEmptySpace(x, y, 15)) {
                 pickedX = x;
@@ -541,7 +667,7 @@ public class Controller {
             }
             else
             {
-                clickCounter = 0;
+                clickCounter = 2;
                 pickedX = -1;
                 pickedY = -1;
             }
@@ -560,23 +686,28 @@ public class Controller {
                 }
             }
         }
+        //System.out.println("Clicked   PickedX: " + pickedX + " pickedY: " + pickedY);
     }
 
     private boolean moveBall(int x, int y)
     {
+
         foundPath=false;
         x = closestShot(x, y).x;
         y = closestShot(x, y).y;
-        //System.out.println("x: "+x+" y: "+y+" picX: "+pickedX+" picY: "+pickedY);
+
         if(isEmptySpace(x,y, 15) && pickedX != -1 && pickedY != -1)
         {
             NetNode point = closestShot(pickedX, pickedY);
+
             for(Ball b: ballsList)
             {
                 if(b.getLayoutX() == point.x && b.getLayoutY() == point.y)
                 {
-                    isReachablePath(point.x,point.y,x,y);
-                    if(foundPath) {
+                    boolean flag = isReachablePath(x,y,point.x,point.y);
+                    if(!flag)
+                        isReachablePath(point.x,point.y,x,y);
+                    if(foundPath || flag) {
 
                         int index = siatka.indexOf(point);
                         point.isTaken=false;
@@ -586,17 +717,21 @@ public class Controller {
 
                         NetNode point2 = closestShot(x, y);
                         int index2=siatka.indexOf(point2);
-                        System.out.println(siatka.get(index2).isTaken);
                         point2.isTaken=true;
                         siatka.set(index2,point2);
-                        System.out.println(siatka.get(index2).isTaken);
                         clickCounter = 0;
-
+                        pickedX=-1;
+                        pickedY=-1;
                         System.out.println("Cool, you changed position.");
+                        return true;
                     }
-                    else
+                    else {
                         System.out.println("sorry, you cant get there.");
-                    return true;
+                        pickedX = -1;
+                        pickedY = -1;
+                        return false;
+                    }
+
                 }
             }
         }
@@ -613,6 +748,9 @@ public class Controller {
             {
                 NetNode node = new NetNode(j,i,false);
                 siatka.add(node);
+                Circle tlo = new Circle(node.x,node.y,3, Color.GRAY);
+                stackPane.getChildren().add(tlo);
+
             }
         }
     }
@@ -644,14 +782,14 @@ public class Controller {
     private int drawColor()
     {
         Random rand = new Random();
-        int i = rand.nextInt(4) ;
+        int i = rand.nextInt(color) ;
         return i;
     }
 
-    private void createBalls()
+    private void createBalls(int howMany)
     {
         int j = 0;
-        while (j < 3 && !isFieldFull()) {
+        while (j < howMany && !isFieldFull()) {
                 int radius = 15;
                 NetNode point = losujPoints(radius);
                 if (point != null) {
@@ -714,272 +852,89 @@ public class Controller {
         return false;
     }
 
-    private int rekursiveCheckForGroupMember(int index, int direction, int countOfBallsInRow, int color)
-    {
-        NetNode p = siatka.get(index);
-        Ball b = null;
-
-        if ( index<81 && p.isTaken )
-        {
-            Iterator<Ball> itr = ballsList.iterator();
-            while(itr.hasNext())
-            {
-                b = itr.next();
-                if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                {
-                    break;
-                }
-
-            }
-            if(b.color == color ) {
-                countOfBallsInRow++;
-
-                if (direction == 0) // patrzymy tyko w prawo.
-                {
-                    if (index + 1 < 81 && siatka.get(index).y == siatka.get(index + 1).y)
-                        return rekursiveCheckForGroupMember(index + 1, direction, countOfBallsInRow, color);
-
-                } else if (direction == 1) // patrzymy tyko w skosPrawy.
-                {
-                    if (index + 10 < 81 && siatka.get(index).x < siatka.get(index + 10).x)
-                        return rekursiveCheckForGroupMember(index + 10, direction, countOfBallsInRow, color);
-                } else if (direction == 2) // patrzymy tyko w w dół.
-                {
-                    if (index + 9 < 81 && siatka.get(index).x == siatka.get(index + 9).x)
-                        return rekursiveCheckForGroupMember(index + 9, direction, countOfBallsInRow, color);
-                } else if (direction == 3) // patrzymy tyko w skosLewy.
-                {
-                    if (index + 8 < 81 && siatka.get(index).x > siatka.get(index + 8).x)
-                        return rekursiveCheckForGroupMember(index + 8, direction, countOfBallsInRow, color);
-                }
-            }
-        }
-        else return countOfBallsInRow;
-
-        return countOfBallsInRow;
-    }
-
-    private boolean checkForGroups()
-    {
-        boolean hasRemovedSomething = false;
-        for(NetNode p : siatka)
-        {
-            int color = 0;
-            int countOfBallsInPoziom = 0;
-            int countOfBallsInSkosPrawy = 0;
-            int countOfBallsInSkosLewy = 0;
-            int countOfBallsInPion = 0;
-            int index = siatka.indexOf(p);
-
-            Iterator<Ball> itr = ballsList.iterator();
-            while(itr.hasNext())
-            {
-                Ball b = itr.next();
-                if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                {
-                    color = b.color;
-                    break;
-                }
-
-            }
-
-            countOfBallsInPoziom = rekursiveCheckForGroupMember( index , 0,  countOfBallsInPoziom, color);
-            countOfBallsInSkosPrawy = rekursiveCheckForGroupMember( index , 1,  countOfBallsInSkosPrawy, color);
-            countOfBallsInPion = rekursiveCheckForGroupMember( index , 2,  countOfBallsInPion, color);
-            countOfBallsInSkosLewy = rekursiveCheckForGroupMember( index , 3,  countOfBallsInSkosLewy, color);
-
-
-            if(countOfBallsInPoziom>=3)
-            {
-                for( int i = index; i < index+countOfBallsInPoziom; i++) {
-                    int countOfBallsInSkosPrawy2 = 0;
-                    int countOfBallsInPion2 = 0;
-                    int countOfBallsInSkosLewy2 = 0;
-
-                    countOfBallsInSkosPrawy2 = rekursiveCheckForGroupMember(i, 1, countOfBallsInSkosPrawy2, color);
-                    countOfBallsInPion2 = rekursiveCheckForGroupMember(i, 2, countOfBallsInPion2, color);
-                    countOfBallsInSkosLewy2 = rekursiveCheckForGroupMember(i, 3, countOfBallsInSkosLewy2, color);
-
-                    deleteBalls(i, countOfBallsInSkosPrawy2, 1);
-                    deleteBalls(i, countOfBallsInPion2, 2);
-                    deleteBalls(i, countOfBallsInSkosLewy2, 3);
-                }
-                deleteBalls(index,countOfBallsInPoziom,0);
-                hasRemovedSomething = true;
-            }
-            //===============================  **********
-            if(countOfBallsInSkosPrawy>=3)
-            {
-                for (int i = index; i < index + countOfBallsInSkosPrawy*10; i+=10)
-                {
-                    int countOfBallsInPoziom2 = 0;
-                    int countOfBallsInPion2 = 0;
-                    int countOfBallsInSkosLewy2 = 0;
-
-                    countOfBallsInPoziom2 = rekursiveCheckForGroupMember(i, 1, countOfBallsInPoziom2, color);
-                    countOfBallsInPion2 = rekursiveCheckForGroupMember(i, 2, countOfBallsInPion2, color);
-                    countOfBallsInSkosLewy2 = rekursiveCheckForGroupMember(i, 3, countOfBallsInSkosLewy2, color);
-
-                    deleteBalls(i, countOfBallsInPoziom2, 1);
-                    deleteBalls(i, countOfBallsInPion2, 2);
-                    deleteBalls(i, countOfBallsInSkosLewy2, 3);
-                }
-                deleteBalls(index,countOfBallsInSkosPrawy,1);
-                hasRemovedSomething = true;
-            }
-            //===============================   **********
-            if(countOfBallsInPion>=3)
-            {
-                for (int i = index; i < index + countOfBallsInPion*9; i+=9)
-                {
-                    int countOfBallsInPoziom2 = 0;
-                    int countOfBallsInSkosPrawy2 = 0;
-                    int countOfBallsInSkosLewy2 = 0;
-
-                    countOfBallsInPoziom2 = rekursiveCheckForGroupMember(i, 1, countOfBallsInPoziom2, color);
-                    countOfBallsInSkosPrawy2 = rekursiveCheckForGroupMember(i, 2, countOfBallsInSkosPrawy2, color);
-                    countOfBallsInSkosLewy2 = rekursiveCheckForGroupMember(i, 3, countOfBallsInSkosLewy2, color);
-
-                    deleteBalls(i, countOfBallsInPoziom2, 1);
-                    deleteBalls(i, countOfBallsInSkosPrawy2, 2);
-                    deleteBalls(i, countOfBallsInSkosLewy2, 3);
-                }
-                deleteBalls(index,countOfBallsInPion,2);
-                hasRemovedSomething = true;
-            }
-            //===============================
-            if(countOfBallsInSkosLewy>=3)
-            {
-                for (int i = index; i < index + countOfBallsInSkosLewy*8; i+=8)
-                {
-                    int countOfBallsInPoziom2 = 0;
-                    int countOfBallsInSkosPrawy2 = 0;
-                    int countOfBallsInPion2 = 0;
-
-                    countOfBallsInPoziom2 = rekursiveCheckForGroupMember(i, 1, countOfBallsInPoziom2, color);
-                    countOfBallsInSkosPrawy2 = rekursiveCheckForGroupMember(i, 2, countOfBallsInSkosPrawy2, color);
-                    countOfBallsInPion2 = rekursiveCheckForGroupMember(i, 3, countOfBallsInPion2, color);
-
-                    deleteBalls(i, countOfBallsInPoziom2, 1);
-                    deleteBalls(i, countOfBallsInSkosPrawy2, 2);
-                    deleteBalls(i, countOfBallsInPion2, 3);
-                }
-
-                deleteBalls(index, countOfBallsInSkosLewy, 3);
-                hasRemovedSomething = true;
-            }
-        }
-        return hasRemovedSomething;
-    }
-
-    private void deleteBalls(int index,int count, int direction)
-    {
-        if(direction == 0)  // poziom.
-        {
-            for (int i = index; i < index + count; i++)
-            {
-                NetNode p = siatka.get(i);
-                p.isTaken = false;
-                siatka.set(i, p);
-
-                Iterator<Ball> itr = ballsList.iterator();
-                while(itr.hasNext())
-                {
-                    Ball b = itr.next();
-                    if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                    {
-
-                        itr.remove();
-
-                        stackPane.getChildren().remove(b);
-
-                        break;
-                    }
-
-                }
-            }
-        }
-        else if(direction == 1)  // skosPrawy.
-        {
-            for (int i = index; i < index + count*10; i+=10)
-            {
-                NetNode p = siatka.get(i);
-                if(p==null) System.out.println("asd");
-                p.isTaken = false;
-                siatka.set(i, p);
-                Iterator<Ball> itr = ballsList.iterator();
-                while(itr.hasNext())
-                {
-                    Ball b = itr.next();
-                    if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                    {
-                        itr.remove();
-                        stackPane.getChildren().remove(b);
-                        System.out.print("");
-                        break;
-                    }
-                }
-            }
-        }
-        else if(direction == 2)  // pion.
-        {
-            for (int i = index; i < index + count*9; i+=9)
-            {
-                System.out.print("");
-
-                NetNode p = siatka.get(i);
-                if(p==null) System.out.println("asd");
-                p.isTaken = false;
-                siatka.set(i, p);
-                Iterator<Ball> itr = ballsList.iterator();
-                while(itr.hasNext())
-                {
-                    Ball b = itr.next();
-                    if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                    {
-                        itr.remove();
-                        System.out.print("");
-                        stackPane.getChildren().remove(b);
-                        break;
-                    }
-                }
-            }
-        }
-        else if(direction == 3)  // skosLewy
-        {
-            for (int i = index; i < index + count*8; i+=8)
-            {
-                NetNode p = siatka.get(i);
-                if(p==null) System.out.println("asd");
-                p.isTaken = false;
-                siatka.set(i, p);
-                Iterator<Ball> itr = ballsList.iterator();
-                while(itr.hasNext())
-                {
-                    Ball b = itr.next();
-                    if (p.x == (int)b.getLayoutX() && p.y == (int)b.getLayoutY())
-                    {
-                        System.out.println(i);
-                        itr.remove();
-                        stackPane.getChildren().remove(b);
-
-                        break;
-                    }
-                    else {
-
-                    }
-                }
-            }
-        }
-        System.out.println("");
-    }
-
     public void initialize()
     {
+        TextInputDialog textInputDialog = new TextInputDialog();
+        textInputDialog.setTitle("Ustawienia gry");
+        textInputDialog.setHeaderText("");
+        textInputDialog.setContentText("Wprowadz your name");
+        Optional<String> result = textInputDialog.showAndWait();
+        textInputDialog.setContentText("Wprowadz howInkulek");
+        Optional<String> howInKulek = textInputDialog.showAndWait();
+        if(result.isPresent())
+        {
+            nick = result.get();
+            System.out.println(nick);
+        }
+        if(result.isPresent())
+        {
+            color = Integer.parseInt(howInKulek.get());
+            System.out.println(color);
+        }
+        MenuBar menuBar = new MenuBar();
+        Menu menuNewGame = new Menu("Nowa gra");
+        MenuItem menuNewGame2 = new MenuItem("Nowa gra");
+        menuNewGame.getItems().addAll(menuNewGame2);
+        Menu menuLevel = new Menu("Poziom Trudnosci");
+        MenuItem ball5 = new MenuItem("5 balls");
+        MenuItem ball7 = new MenuItem("7 balls");
+        MenuItem ball9 = new MenuItem("9 balls");
+        menuLevel.getItems().addAll(ball5, ball7, ball9);
+        Menu menuStatistics = new Menu("Ranking");
+        MenuItem sBall5 = new MenuItem("5 balls");
+        MenuItem sBall7 = new MenuItem("7 balls");
+        MenuItem sBall9 = new MenuItem("9 balls");
+        menuStatistics.getItems().addAll(sBall5, sBall7, sBall9);
+        menuBar.getMenus().addAll(menuNewGame, menuLevel, menuStatistics);
+
+        Alert ranking = new Alert(Alert.AlertType.INFORMATION);
+        ranking.setTitle("Ranking");
+        sBall5.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ranking.setHeaderText("5 colors");
+                ranking.setContentText("123");
+                ranking.showAndWait();
+            }
+        });
+        sBall7.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ranking.setHeaderText("7 colors");
+                ranking.setContentText("123");
+                ranking.showAndWait();
+            }
+        });
+        sBall9.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ranking.setHeaderText("9 colors");
+                ranking.setContentText("123");
+                ranking.showAndWait();
+            }
+        });
+        menuNewGame2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                System.out.println( "Restarting app!" );
+                Stage primaryStage = (Stage) stackPane.getScene().getWindow();
+                primaryStage.close();
+                Platform.runLater( () -> {
+                    try {
+                        new Main().start( new Stage() );
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+        stackPane.getChildren().add(menuBar);
+
+
         this.ballsList = new ArrayList<>();
         this.siatka = new ArrayList<>();
         createArea();
-        createBalls();
+        createBalls(5);
 
 
     }
