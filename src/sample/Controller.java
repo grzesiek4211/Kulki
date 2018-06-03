@@ -1,15 +1,21 @@
 package sample;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
@@ -48,6 +54,7 @@ public class Controller {
     Ranking wynik = new Ranking();
 
     int flagEnd = 0;
+    Label label1;
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
@@ -155,16 +162,45 @@ public class Controller {
                         int index = siatka.indexOf(node);
                         node.isTaken=false;
                         siatka.set(index,node);
-                        stackPane.getChildren().remove(b);
                         if (ballsList.remove(b)) flag = true;
+                        //stackPane.getChildren().remove(b);
+                        removeBallEffect(b);
                     }
                 }
             }
-        }
 
+        }
+        label1.setText("Punkty: "  + Integer.toString(points));
         ballsToRemove.clear();
 
         return flag;
+    }
+    private void removeBallEffect(Ball b)
+    {
+        ColorAdjust colorAdjust = new ColorAdjust();
+        b.setEffect(colorAdjust);
+        Timeline fadeInTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(colorAdjust.brightnessProperty(), colorAdjust.brightnessProperty().getValue(), Interpolator.LINEAR)),
+                new KeyFrame(Duration.seconds(0.5), new KeyValue(colorAdjust.brightnessProperty(), -1, Interpolator.LINEAR)
+
+
+                ));
+        fadeInTimeline.setCycleCount(1);
+        fadeInTimeline.setAutoReverse(false);
+        fadeInTimeline.play();
+        //
+        Timeline beat = new Timeline(
+                new KeyFrame(Duration.ZERO,       null),
+                new KeyFrame(Duration.seconds(0.5), event -> stackPane.getChildren().remove(b))
+        );
+        beat.setAutoReverse(true);
+        beat.setCycleCount(Timeline.INDEFINITE);
+        beat.play();
+
+
+
+
     }
 
     public void countSquare() {
@@ -860,6 +896,10 @@ public class Controller {
 
     private void view()
     {
+        label1 = new Label("Points:");
+        label1.setStyle("-fx-font-size: 20; -fx-text-fill: SILVER");
+        label1.setLayoutX(220);
+        label1.setLayoutY(30);
         MenuBar menuBar = new MenuBar();
         Menu menuNewGame = new Menu("New game");
         MenuItem menuNewGame2 = new MenuItem("New game");
@@ -1019,7 +1059,7 @@ public class Controller {
             }
         });
 
-        stackPane.getChildren().add(menuBar);
+        stackPane.getChildren().addAll(menuBar, label1);
 
         this.ballsList = new ArrayList<>();
         this.siatka = new ArrayList<>();
