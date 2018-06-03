@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -42,32 +43,81 @@ public class Controller {
     int checkedNodesCounter =0;
     int color;
     String nick;
+    ArrayList<Level> ranking5 = new ArrayList<Level>();
+    ArrayList<Level> ranking7 = new ArrayList<Level>();
+    ArrayList<Level> ranking9 = new ArrayList<Level>();
+    Ranking wynik = new Ranking();
+
+    int flagEnd = 0;
+    //boolean flagLevel = true;
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
+        if(flagEnd == 0) {
+            if (!isFieldFull()) {
+                clickAndMoveBall((int) mouseEvent.getX(), (int) mouseEvent.getY());
 
-        clickAndMoveBall( (int) mouseEvent.getX(), (int) mouseEvent.getY());
-
-        //createBalls();
-        if(clickCounter == 0) {
-            countPointsVertictal();
-            countPointsHorizontal();
-            //countSquare();
-            countPointsDiagonalLeft();
-            countPointsDiagonalRight();
+                //createBalls();
+                if (clickCounter == 0) {
+                    countPointsVertictal();
+                    countPointsHorizontal();
+                    countSquare();
+                    countPointsDiagonalLeft();
+                    countPointsDiagonalRight();
 
 
-            if ( !deletingBalls() ) {
-                createBalls(3);
+                    if (!deletingBalls()) {
+                        createBalls(10);
+                    }
+                    countPointsVertictal();
+                    countPointsHorizontal();
+                    countSquare();
+                    countPointsDiagonalLeft();
+                    countPointsDiagonalRight();
+                    deletingBalls();
+                }
+            } else {
+                flagEnd = 1;
+                Alert end = new Alert(Alert.AlertType.INFORMATION);
+                end.setTitle("Koniec gry!");
+                end.setHeaderText("Koniec gry!");
+                end.setContentText(nick + " Twój wynik to: " + points);
+                end.showAndWait();
+
+                ranking5 = wynik.getRanking5();
+                ranking7 = wynik.getRanking7();
+                ranking9 = wynik.getRanking9();
+
+                Level level = new Level(nick, points);
+                if (color == 5)
+                    ranking5.add(level);
+                if (color == 7)
+                    ranking7.add(level);
+                if (color == 9)
+                    ranking9.add(level);
+
+                Collections.sort(ranking5);
+                Collections.sort(ranking7);
+                Collections.sort(ranking9);
+
+                wynik.setRanking5(ranking5);
+                wynik.setRanking7(ranking7);
+                wynik.setRanking7(ranking9);
+
+                try {
+                    Serialize st = new Serialize(wynik);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            countPointsVertictal();
-            countPointsHorizontal();
-            //countSquare();
-            countPointsDiagonalLeft();
-            countPointsDiagonalRight();
-            deletingBalls();
-
-            //System.out.println(points);
+        }
+        else
+        {
+            Alert end = new Alert(Alert.AlertType.INFORMATION);
+            end.setTitle("Koniec gry!");
+            end.setHeaderText("Koniec gry!");
+            end.setContentText("Kliknij Nowa gra!");
+            end.showAndWait();
         }
     }
 
@@ -129,58 +179,61 @@ public class Controller {
             ArrayList<Ball> balls = new ArrayList<>();
 
             for (int j = i; j < i + 8; j++) {
-                if (!siatka.get(j).isTaken)
-                {
-                    index = 0;
-                    currentColor = new int[4];
-                    balls.clear();
-                    continue;
-                }
 
+                if (!siatka.get(j).isTaken)
+                    continue;
 
                 int j2 = j + 1;
                 int j3 = j + 9;
                 int j4 = j2 + 9;
                 int ballX;
                 int ballY;
+                Ball b1 = null;
+                Ball b2 = null;
+                Ball b3 = null;
+                Ball b4 = null;
 
                 for (Ball ball : ballsList) {
-                    ballX = (int)ball.getLayoutX();
-                    ballY = (int)ball.getLayoutY();
-                    if ( ( siatka.get(j).x == ballX && siatka.get(j).y == ballY )
-                            || ( siatka.get(j2).x == ballX && siatka.get(j2).y == ballY )
-                            || ( siatka.get(j3).x == ballX && siatka.get(j3).y == ballY )
-                            || ( siatka.get(j4).x == ballX && siatka.get(j4).y == ballY ) )
-                    {
-                        currentColor[index] = ball.color;
-                        balls.add(ball);
-                        index++;
+                    ballX = (int) ball.getLayoutX();
+                    ballY = (int) ball.getLayoutY();
+
+                    if (siatka.get(j).x == ballX && siatka.get(j).y == ballY)
+                        b1 = ball;
+                }
+                for (Ball ball : ballsList) {
+                    ballX = (int) ball.getLayoutX();
+                    ballY = (int) ball.getLayoutY();
+
+                    if (siatka.get(j2).x == ballX && siatka.get(j2).y == ballY)
+                        b2 = ball;
+                }
+                for (Ball ball : ballsList) {
+                    ballX = (int) ball.getLayoutX();
+                    ballY = (int) ball.getLayoutY();
+
+                    if (siatka.get(j3).x == ballX && siatka.get(j3).y == ballY)
+                        b3 = ball;
+                }
+                for (Ball ball : ballsList) {
+                    ballX = (int) ball.getLayoutX();
+                    ballY = (int) ball.getLayoutY();
+
+                    if (siatka.get(j4).x == ballX && siatka.get(j4).y == ballY)
+                        b4 = ball;
+                }
+                if(b1!=null && b2 != null && b3 != null && b4 != null) {
+                    if((b1.color==b2.color) && (b3.color==b4.color) && b1.color==b3.color) {
+                        balls.add(b1);
+                        balls.add(b2);
+                        balls.add(b3);
+                        balls.add(b4);
                     }
                 }
-                index = 0;
 
-                if(currentColor[0] == currentColor[1] && currentColor[2] == currentColor[3] && currentColor[1] == currentColor[2])
-                {
-                    kwadrat.add(copyArrayList(balls));
-                    balls.clear();
-                }
-                else
-                {
-                    balls.clear();
-                }
+                kwadrat.add(copyArrayList(balls));
+                balls.clear();
             }
         }
-
-        /*for(List<Ball> L : kwadrat)
-        {
-            for (Ball b : L)
-            {
-                System.out.print(b.color+" ");
-            }
-            if(!L.isEmpty()) {
-                System.out.println("");
-            }
-        }*/
     }
 
     public void countPointsHorizontal() {
@@ -852,8 +905,8 @@ public class Controller {
         return false;
     }
 
-    public void initialize()
-    {
+    public void initialize() {
+
         TextInputDialog textInputDialog = new TextInputDialog();
         textInputDialog.setTitle("Ustawienia gry");
         textInputDialog.setHeaderText("");
@@ -861,16 +914,29 @@ public class Controller {
         Optional<String> result = textInputDialog.showAndWait();
         textInputDialog.setContentText("Wprowadz howInkulek");
         Optional<String> howInKulek = textInputDialog.showAndWait();
-        if(result.isPresent())
-        {
+
+        if (result.isPresent()) {
             nick = result.get();
             System.out.println(nick);
         }
-        if(result.isPresent())
-        {
+        if (result.isPresent()) {
             color = Integer.parseInt(howInKulek.get());
             System.out.println(color);
         }
+
+        try {
+            wynik = Deserialize.odczyt();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        view();
+    }
+
+    private void view()
+    {
         MenuBar menuBar = new MenuBar();
         Menu menuNewGame = new Menu("Nowa gra");
         MenuItem menuNewGame2 = new MenuItem("Nowa gra");
@@ -892,30 +958,55 @@ public class Controller {
         sBall5.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                int count = 1;
+                String result = "";
+                for(Level r: wynik.getRanking5())
+                {
+                    if(count > 10) break;
+                    result += count + ". " + r + "\n";
+                    count++;
+                }
                 ranking.setHeaderText("5 colors");
-                ranking.setContentText("123");
+                ranking.setContentText(result);
                 ranking.showAndWait();
             }
         });
         sBall7.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                int count = 1;
+                String result = "";
+                for(Level r: wynik.getRanking7())
+                {
+                    if(count > 10) break;
+                    result += count + ". " + r + "\n";
+                    count++;
+                }
                 ranking.setHeaderText("7 colors");
-                ranking.setContentText("123");
+                ranking.setContentText(result);
                 ranking.showAndWait();
             }
         });
         sBall9.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                int count = 1;
+                String result = "";
+                for(Level r: wynik.getRanking9())
+                {
+                    if(count > 10) break;
+                    result += count + ". " + r + "\n";
+                    count++;
+                }
                 ranking.setHeaderText("9 colors");
-                ranking.setContentText("123");
+                ranking.setContentText(result);
                 ranking.showAndWait();
             }
         });
         menuNewGame2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                //flagLevel = true;
                 System.out.println( "Restarting app!" );
                 Stage primaryStage = (Stage) stackPane.getScene().getWindow();
                 primaryStage.close();
@@ -928,6 +1019,86 @@ public class Controller {
                 });
             }
         });
+
+        ball5.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                stackPane.getChildren().clear();
+                view();
+
+                poziomo = new ArrayList<>();
+                skosprawy = new ArrayList<>();
+                skoslewy = new ArrayList<>();
+                dol = new ArrayList<>();
+                kwadrat = new ArrayList<>();
+                clickCounter = 0;
+                points = 0;
+                foundPath=false;
+                cantBeReached = false;
+                checkedNodesCounter = 0;
+                flagEnd = 0;
+                pickedX = 0;
+                pickedY = 0;
+
+
+                color = 5;
+            }
+        });
+
+        ball7.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                stackPane.getChildren().clear();
+                view();
+
+                poziomo = new ArrayList<>();
+                skosprawy = new ArrayList<>();
+                skoslewy = new ArrayList<>();
+                dol = new ArrayList<>();
+                kwadrat = new ArrayList<>();
+                clickCounter = 0;
+                points = 0;
+                foundPath=false;
+                cantBeReached = false;
+                checkedNodesCounter = 0;
+                flagEnd = 0;
+                pickedX = 0;
+                pickedY = 0;
+
+
+                color = 7;
+            }
+        });
+
+        ball9.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                stackPane.getChildren().clear();
+                view();
+
+                poziomo = new ArrayList<>();
+                skosprawy = new ArrayList<>();
+                skoslewy = new ArrayList<>();
+                dol = new ArrayList<>();
+                kwadrat = new ArrayList<>();
+                clickCounter = 0;
+                points = 0;
+                foundPath=false;
+                cantBeReached = false;
+                checkedNodesCounter = 0;
+                flagEnd = 0;
+                pickedX = 0;
+                pickedY = 0;
+
+
+                color = 9;
+            }
+        });
+
+
         stackPane.getChildren().add(menuBar);
 
 
@@ -935,8 +1106,6 @@ public class Controller {
         this.siatka = new ArrayList<>();
         createArea();
         createBalls(5);
-
-
     }
 
     private ArrayList copyArrayList( ArrayList list) {

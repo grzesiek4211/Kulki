@@ -16,8 +16,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-public class Main extends Application {
 
+public class Main extends Application {
+    static boolean flagLevel = true;
     @Override
     public void start(Stage primaryStage) throws Exception
     {
