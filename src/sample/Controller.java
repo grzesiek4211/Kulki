@@ -12,7 +12,6 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Controller {
@@ -41,23 +40,22 @@ public class Controller {
     boolean foundPath=false;
     boolean cantBeReached = false;
     int checkedNodesCounter =0;
-    int color;
-    String nick;
+    int color = 5;
+    String nick = "computer";
     ArrayList<Level> ranking5 = new ArrayList<Level>();
     ArrayList<Level> ranking7 = new ArrayList<Level>();
     ArrayList<Level> ranking9 = new ArrayList<Level>();
     Ranking wynik = new Ranking();
 
     int flagEnd = 0;
-    //boolean flagLevel = true;
 
     public void onMouseClicked(MouseEvent mouseEvent)
     {
         if(flagEnd == 0) {
             if (!isFieldFull()) {
+
                 clickAndMoveBall((int) mouseEvent.getX(), (int) mouseEvent.getY());
 
-                //createBalls();
                 if (clickCounter == 0) {
                     countPointsVertictal();
                     countPointsHorizontal();
@@ -67,7 +65,7 @@ public class Controller {
 
 
                     if (!deletingBalls()) {
-                        createBalls(10);
+                        createBalls(3);
                     }
                     countPointsVertictal();
                     countPointsHorizontal();
@@ -79,9 +77,9 @@ public class Controller {
             } else {
                 flagEnd = 1;
                 Alert end = new Alert(Alert.AlertType.INFORMATION);
-                end.setTitle("Koniec gry!");
-                end.setHeaderText("Koniec gry!");
-                end.setContentText(nick + " Twój wynik to: " + points);
+                end.setTitle("End game!");
+                end.setHeaderText("End game!");
+                end.setContentText(nick + " your result is: " + points);
                 end.showAndWait();
 
                 ranking5 = wynik.getRanking5();
@@ -114,9 +112,9 @@ public class Controller {
         else
         {
             Alert end = new Alert(Alert.AlertType.INFORMATION);
-            end.setTitle("Koniec gry!");
-            end.setHeaderText("Koniec gry!");
-            end.setContentText("Kliknij Nowa gra!");
+            end.setTitle("End of game!");
+            end.setHeaderText("End of game!");
+            end.setContentText("Press New game!");
             end.showAndWait();
         }
     }
@@ -238,13 +236,10 @@ public class Controller {
 
     public void countPointsHorizontal() {
 
-        //poziomo
         int[] colors = new int[5];
         int currentColor = -1;
         int inRow = 0;
         int howManyInRow = 5;
-
-        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
         poziomo.clear();
         for (int i = 0; i < siatka.size(); i += 9) {
@@ -252,11 +247,10 @@ public class Controller {
 
             for (int j = i; j < i + 9; j++) {
 
-                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                if (!siatka.get(j).isTaken)
                 {
                     if (inRow >= howManyInRow) {
                         ArrayList<Ball> arrayList = copyArrayList(balls);
-                        System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
                         poziomo.add(arrayList);
                     }
                     balls.clear();
@@ -294,31 +288,14 @@ public class Controller {
             inRow = 0;
             currentColor = -1;
         }
-
-        for(List<Ball> L : poziomo)
-        {
-
-            //System.out.println("L size: " + L.size());
-            //System.out.print("Color: ");
-            for (Ball b : L)
-            {
-                System.out.print(b.color+" ");
-            }
-            if(!L.isEmpty()) {
-                System.out.println("");
-            }
-        }
     }
 
     public void countPointsVertictal() {
 
         int howManyInRow = 5;
-        //poziomo
         int[] colors = new int[5];
         int currentColor = -1;
         int inRow = 0;
-
-        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
 
         dol.clear();
         for (int i = 0; i < 9; i++) {
@@ -326,11 +303,10 @@ public class Controller {
 
             for (int j = i; j <= i + 72; j += 9) {
 
-                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                if (!siatka.get(j).isTaken)
                 {
                     if (inRow >= howManyInRow) {
                         ArrayList<Ball> arrayList = copyArrayList(balls);
-                        System.out.println("Rząd = " + i / 9 + " size = " + arrayList.size() + " color = " + arrayList.get(0).color);
                         dol.add(arrayList);
                     }
                     balls.clear();
@@ -353,7 +329,6 @@ public class Controller {
                         } else {
                             balls.add(ball);
                             inRow++;
-                            //if (j % 9 == 8) {
                             if (j > 71) {
                                 if (inRow >= howManyInRow) {
                                     dol.add(copyArrayList(balls));
@@ -369,26 +344,11 @@ public class Controller {
             inRow = 0;
             currentColor = -1;
         }
-
-        for(List<Ball> L : dol)
-        {
-
-            //System.out.println("L size: " + L.size());
-            //System.out.print("Color: ");
-            for (Ball b : L)
-            {
-                System.out.print(b.color+" ");
-            }
-            if(!L.isEmpty()) {
-                System.out.println("");
-            }
-        }
     }
 
     public void countPointsDiagonalRight() {
 
         skosprawy.clear();
-        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
         int howManyInRow = 5;
         int inRow = 0;
         int currentColor = -1;
@@ -399,14 +359,10 @@ public class Controller {
             ArrayList<Ball> balls = new ArrayList<>();
             for (int j = i; j < 81; j+=10) {
 
-
-                //System.out.println("i: "+i+" j: "+j);
-                if (!siatka.get(j).isTaken) // zle bo jak bede mial 5 to wykasuje
+                if (!siatka.get(j).isTaken)
                 {
-                    //System.out.println("wolna przestrzen");
                     if (inRow >= howManyInRow) {
                         skosprawy.add(copyArrayList(balls));
-                        System.out.println("dupa1");
                     }
                     balls.clear();
                     inRow = 0;
@@ -422,16 +378,13 @@ public class Controller {
                                 skosprawy.add(copyArrayList(balls));
                             }
                             balls.clear();
-                            //System.out.println(inRow);
                             balls.add(ball);
                             currentColor = ball.color;
                             inRow = 1;
                         } else {
                             balls.add(ball);
-                            //System.out.println(inRow);
                             inRow++;
                             if (j % 9 == 8 || j > 71) {
-                                //System.out.println(inRow);
                                 if (inRow >= howManyInRow)
                                 {
                                     skosprawy.add(copyArrayList(balls));
@@ -455,22 +408,11 @@ public class Controller {
             if(i == 5) flag = false;
 
         }
-        for(List<Ball> L : skosprawy)
-        {
-            for (Ball b : L)
-            {
-                System.out.print(b.color+" ");
-            }
-            if(!L.isEmpty()) {
-                System.out.println("");
-            }
-        }
     }
 
     public void countPointsDiagonalLeft() {
 
         skoslewy.clear();
-        System.out.println(" 0 BLUE 1 WHITE 2 RED 3 Green");
         int howManyInRow = 5;
         int inRow = 0;
         int currentColor = -1;
@@ -539,16 +481,6 @@ public class Controller {
             if(i == 3) flag = false;
 
         }
-        for(List<Ball> L : skoslewy)
-        {
-            for (Ball b : L)
-            {
-                System.out.print(b.color+" ");
-            }
-            if(!L.isEmpty()) {
-                System.out.println("");
-            }
-        }
     }
 
     private boolean isReachablePath(int startX, int startY, int endX, int endY)
@@ -613,7 +545,6 @@ public class Controller {
                     flag = true;
             }
         }
-        //System.out.println(checked.size());
 
         checked.clear();
         return flag;
@@ -739,7 +670,6 @@ public class Controller {
                 }
             }
         }
-        //System.out.println("Clicked   PickedX: " + pickedX + " pickedY: " + pickedY);
     }
 
     private boolean moveBall(int x, int y)
@@ -779,7 +709,7 @@ public class Controller {
                         return true;
                     }
                     else {
-                        System.out.println("sorry, you cant get there.");
+                        System.out.println("Sorry, you cant get there.");
                         pickedX = -1;
                         pickedY = -1;
                         return false;
@@ -859,7 +789,7 @@ public class Controller {
         }
     }
 
-    private void createBallOnClick(int x, int y)
+    private void createBallOnClick(int x, int y) // funkcja do testów
     {
             if(!isFieldFull()) {
                 int radius = 15;
@@ -908,20 +838,13 @@ public class Controller {
     public void initialize() {
 
         TextInputDialog textInputDialog = new TextInputDialog();
-        textInputDialog.setTitle("Ustawienia gry");
+        textInputDialog.setTitle("Settings");
         textInputDialog.setHeaderText("");
-        textInputDialog.setContentText("Wprowadz your name");
+        textInputDialog.setContentText("Enter your name");
         Optional<String> result = textInputDialog.showAndWait();
-        textInputDialog.setContentText("Wprowadz howInkulek");
-        Optional<String> howInKulek = textInputDialog.showAndWait();
 
         if (result.isPresent()) {
             nick = result.get();
-            System.out.println(nick);
-        }
-        if (result.isPresent()) {
-            color = Integer.parseInt(howInKulek.get());
-            System.out.println(color);
         }
 
         try {
@@ -938,10 +861,10 @@ public class Controller {
     private void view()
     {
         MenuBar menuBar = new MenuBar();
-        Menu menuNewGame = new Menu("Nowa gra");
-        MenuItem menuNewGame2 = new MenuItem("Nowa gra");
+        Menu menuNewGame = new Menu("New game");
+        MenuItem menuNewGame2 = new MenuItem("New game");
         menuNewGame.getItems().addAll(menuNewGame2);
-        Menu menuLevel = new Menu("Poziom Trudnosci");
+        Menu menuLevel = new Menu("Difficulty level");
         MenuItem ball5 = new MenuItem("5 balls");
         MenuItem ball7 = new MenuItem("7 balls");
         MenuItem ball9 = new MenuItem("9 balls");
@@ -1006,8 +929,6 @@ public class Controller {
         menuNewGame2.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //flagLevel = true;
-                System.out.println( "Restarting app!" );
                 Stage primaryStage = (Stage) stackPane.getScene().getWindow();
                 primaryStage.close();
                 Platform.runLater( () -> {
@@ -1098,9 +1019,7 @@ public class Controller {
             }
         });
 
-
         stackPane.getChildren().add(menuBar);
-
 
         this.ballsList = new ArrayList<>();
         this.siatka = new ArrayList<>();

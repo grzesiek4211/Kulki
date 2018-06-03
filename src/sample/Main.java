@@ -18,14 +18,13 @@ import javafx.util.Duration;
 
 
 public class Main extends Application {
-    static boolean flagLevel = true;
     @Override
     public void start(Stage primaryStage) throws Exception
     {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
 
-        primaryStage.setScene(new Scene(root, 600, 600));
-        primaryStage.setTitle("AIKULKI");
+        primaryStage.setScene(new Scene(root, 550, 500));
+        primaryStage.setTitle("KULKI");
 
 
         primaryStage.show();
